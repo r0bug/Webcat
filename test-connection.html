@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebCat Connection Test</title>
+</head>
+<body>
+    <h1>WebCat Connection Test</h1>
+    
+    <h2>Backend API Test</h2>
+    <button onclick="testBackend()">Test Backend</button>
+    <pre id="backend-result"></pre>
+    
+    <h2>Frontend Test</h2>
+    <p>If you can see this page, basic HTTP is working.</p>
+    <button onclick="window.open('http://127.0.0.1:5173', '_blank')">Open Frontend (127.0.0.1)</button>
+    <button onclick="window.open('http://192.168.68.64:5173', '_blank')">Open Frontend (Network IP)</button>
+    
+    <script>
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                document.getElementById('backend-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('backend-result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

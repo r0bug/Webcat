@@ -1,0 +1,54 @@
+#root {
+  min-height: 100vh;
+}
+
+/* Calendar styles */
+.calendar-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.calendar-table th {
+  text-align: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.calendar-cell {
+  padding: 8px;
+  border: 1px solid #dee2e6;
+  vertical-align: top;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.calendar-cell:hover {
+  background-color: #f8f9fa;
+}
+
+.calendar-cell.text-muted {
+  color: #6c757d;
+  background-color: #fafafa;
+}
+
+/* Card hover effects */
+.cursor-pointer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+/* Global spacing */
+.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Remove default link underline */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
