@@ -1,7 +1,22 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Dynamically determine API URL based on current host
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  // If we have an environment URL and we're on localhost, use it
+  if (envUrl && window.location.hostname === 'localhost') {
+    return envUrl;
+  }
+  
+  // Otherwise, use the same host as the frontend
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  return `${protocol}//${hostname}:3001/api`;
+};
+
+const API_URL = getApiUrl();
 
 class ApiService {
   private api: AxiosInstance;
