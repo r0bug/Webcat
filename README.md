@@ -14,6 +14,12 @@ WebCat is a web-based catalog system designed for consignment mall members to sh
 - **Social Sharing**: Share items, forum posts, and events on social media
 - **Mobile Responsive**: Progressive Web App with mobile-first design
 
+### Admin Features
+- **Theme Editor**: Visual theme customization with live preview
+- **User Management**: Create, edit, and manage user accounts
+- **Admin Dashboard**: Central hub for administrative functions
+- **In-App Documentation**: Comprehensive documentation at `/docs`
+
 ### User Roles
 - **Admin**: Full system access, can manage all content
 - **Staff**: Can manage all items and events, moderate forum
@@ -47,8 +53,8 @@ WebCat is a web-based catalog system designed for consignment mall members to sh
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/webcat.git
-cd webcat
+git clone https://github.com/r0bug/Webcat.git
+cd Webcat
 ```
 
 2. Run the installation script:
@@ -75,13 +81,26 @@ DB_PASSWORD=your_mysql_password
 ```
 
 4. Start the application:
+
+**Option A - Default ports:**
 ```bash
 ./start.sh
 ```
-
-The application will be available at:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3001/api
+
+**Option B - Port 80 (requires sudo):**
+```bash
+./start-webcat-80.sh
+```
+- Frontend: http://localhost
+- Backend API: http://localhost:3001/api
+
+**Option C - WebCat script:**
+```bash
+./start-webcat.sh
+```
+Starts both frontend and backend in development mode
 
 ## Default Credentials
 
