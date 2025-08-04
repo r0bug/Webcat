@@ -14,6 +14,7 @@ import Documentation from './pages/Documentation';
 import AdminDashboard from './pages/AdminDashboard';
 import UserManagement from './pages/UserManagement';
 import ThemeEditor from './components/admin/ThemeEditor';
+import MyItemsPage from './pages/MyItemsPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -38,6 +39,11 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/items" element={<ItemsPage />} />
+                <Route path="/items/my-items" element={
+                  <ProtectedRoute>
+                    <MyItemsPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/items/:slug" element={<div>Item Detail - Coming Soon</div>} />
                 <Route path="/messages" element={<div>Messages - Coming Soon</div>} />
                 <Route path="/forum" element={<ForumPage />} />
