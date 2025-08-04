@@ -223,9 +223,7 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
     const userData = user.toJSON();
     delete (userData as any).passwordHash;
 
-    res.json({
-      user: userData
-    });
+    res.json(userData);
   } catch (error) {
     next(error);
   }

@@ -49,6 +49,19 @@ When implementing this system, follow these architectural patterns:
 - Implement image optimization and lazy loading
 - Enforce max 6 images per item constraint
 
+## Latest Updates (August 2025)
+
+### New Features Added:
+1. **Theme Editor**: Admin-only visual theme customization with live preview
+2. **User Management**: Admin interface for managing users, roles, and permissions
+3. **Admin Dashboard**: Central hub for administrative functions
+4. **In-App Documentation**: Comprehensive documentation accessible at `/docs`
+
+### Login Credentials:
+- **Admin**: admin@webcat.com / password123
+- **Staff**: staff@webcat.com / password123
+- **Vendor**: john@vendor.com / password123
+
 ## Implementation Commands
 
 Once the project is set up, typical commands will be:
@@ -121,3 +134,16 @@ Implement tests for:
 7. Always describe to me your implementation plans and ask me if its ok to procece.
 8. Always keep a log of code changes with rationale for easy understanding of workflow
 9. Always update documentation after every code change
+
+## Common Issues and Solutions
+
+### Authentication Issues
+- If getting 403 Forbidden errors, check that:
+  - The JWT token is being sent in the Authorization header
+  - The token hasn't expired (tokens expire after 7 days)
+  - The user has the correct role (Admin, Staff, or Vendor)
+  
+### API Response Handling
+- The frontend API service (src/services/api.ts) automatically extracts `response.data`
+- When using the api service, access data directly: `const data = await api.get('/endpoint')`
+- Don't use `response.data` as the data is already extracted

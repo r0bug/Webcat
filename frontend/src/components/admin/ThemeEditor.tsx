@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChromePicker, ColorResult } from 'react-color';
+import { ChromePicker } from 'react-color';
+import type { ColorResult } from 'react-color';
 import { FiSave, FiRefreshCw, FiType, FiLayout, FiSettings } from 'react-icons/fi';
 import { MdPalette } from 'react-icons/md';
 import api from '../../services/api';
@@ -36,8 +37,9 @@ const ThemeEditor: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get('/theme');
-      setSettings(response.data.settings);
-      setRawSettings(response.data.raw);
+      // API service already returns response.data
+      setSettings(response.settings || {});
+      setRawSettings(response.raw || []);
     } catch (error) {
       console.error('Failed to fetch theme settings:', error);
     } finally {

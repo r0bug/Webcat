@@ -76,6 +76,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Apply theme CSS variables
   const applyTheme = useCallback((themeSettings: ThemeSettings) => {
+    if (!themeSettings) return;
+    
     const root = document.documentElement;
     
     // Apply colors
@@ -125,8 +127,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const refreshTheme = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get('/theme/public');
-      const themeData = response.data;
+      const themeData = await api.get('/theme/public');
+      // API service already returns response.data
       setTheme(themeData);
       applyTheme(themeData);
       

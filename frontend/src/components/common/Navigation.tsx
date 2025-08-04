@@ -19,7 +19,7 @@ const Navigation: React.FC = () => {
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
       <Container>
         <Navbar.Brand as={Link} to="/">
-          {theme.site_title || 'WebCat'}
+          {theme?.site_title || 'WebCat'}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -33,10 +33,13 @@ const Navigation: React.FC = () => {
             <Nav.Link as={Link} to="/forum">
               Forum
             </Nav.Link>
+            <Nav.Link as={Link} to="/docs">
+              Documentation
+            </Nav.Link>
           </Nav>
           
           <Nav>
-            {theme.enable_dark_mode && (
+            {theme?.enable_dark_mode && (
               <Nav.Link onClick={toggleDarkMode} className="me-3">
                 {isDarkMode ? <FiSun /> : <FiMoon />}
               </Nav.Link>

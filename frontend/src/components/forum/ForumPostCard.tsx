@@ -27,7 +27,7 @@ const ForumPostCard: React.FC<ForumPostCardProps> = ({ post }) => {
         
         <div className="text-muted small mb-2">
           <FaUser className="me-1" />
-          <span className="me-3">{post.author.username}</span>
+          <span className="me-3">{post.user?.name || post.author?.username || 'Anonymous'}</span>
           <FaClock className="me-1" />
           <span>{format(new Date(post.createdAt), 'MMM d, yyyy')}</span>
         </div>

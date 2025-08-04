@@ -10,6 +10,9 @@ import ItemsPage from './pages/ItemsPage';
 import ForumPage from './pages/ForumPage';
 import ForumPostPage from './pages/ForumPostPage';
 import CalendarPage from './pages/CalendarPage';
+import Documentation from './pages/Documentation';
+import AdminDashboard from './pages/AdminDashboard';
+import UserManagement from './pages/UserManagement';
 import ThemeEditor from './components/admin/ThemeEditor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -40,12 +43,26 @@ function App() {
                 <Route path="/forum" element={<ForumPage />} />
                 <Route path="/forum/post/:id" element={<ForumPostPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/docs" element={<Documentation />} />
                 <Route path="/profile" element={<div>Profile - Coming Soon</div>} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute allowedRoles={['Admin', 'Staff']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute allowedRoles={['Admin']}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                } />
                 <Route path="/admin/theme" element={
                   <ProtectedRoute allowedRoles={['Admin']}>
                     <ThemeEditor />
                   </ProtectedRoute>
                 } />
+                
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Layout>

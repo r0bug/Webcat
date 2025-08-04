@@ -24,7 +24,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   }
 };
 
-export const authorize = (...allowedRoles: UserType[]) => {
+export const authorize = (allowedRoles: UserType[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -32,6 +32,11 @@ export const authorize = (...allowedRoles: UserType[]) => {
     }
 
     if (!allowedRoles.includes(req.user.userType)) {
+      console.log('Authorization failed:', {
+        userType: req.user.userType,
+        allowedRoles,
+        check: allowedRoles.includes(req.user.userType)
+      });
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
