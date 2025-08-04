@@ -5,6 +5,7 @@ import tagRoutes from './tags';
 import messageRoutes from './messages';
 import forumRoutes from './forumRoutes';
 import eventRoutes from './eventRoutes';
+import themeRoutes from './theme';
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use('/tags', tagRoutes);
 router.use('/messages', messageRoutes);
 router.use('/forum', forumRoutes);
 router.use('/events', eventRoutes);
+router.use('/theme', themeRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

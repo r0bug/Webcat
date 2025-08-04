@@ -1,0 +1,187 @@
+/* CSS Variables for theming */
+:root {
+  /* Colors */
+  --primary-color: #3B82F6;
+  --secondary-color: #6366F1;
+  --accent-color: #8B5CF6;
+  --background-color: #FFFFFF;
+  --text-color: #1F2937;
+  --navbar-bg-color: #1F2937;
+  --navbar-text-color: #FFFFFF;
+  
+  /* Typography */
+  --font-family: Inter, system-ui, -apple-system, sans-serif;
+  --heading-font-family: Inter, system-ui, -apple-system, sans-serif;
+  --base-font-size: 16px;
+  
+  /* Layout */
+  --border-radius: 8px;
+  --container-max-width: 1200px;
+  
+  /* Computed values */
+  --text-muted: rgba(31, 41, 55, 0.6);
+  --border-color: rgba(31, 41, 55, 0.1);
+}
+
+/* Dark mode variables */
+.dark {
+  --background-color: #1F2937;
+  --text-color: #F9FAFB;
+  --navbar-bg-color: #111827;
+  --navbar-text-color: #F9FAFB;
+  --text-muted: rgba(249, 250, 251, 0.6);
+  --border-color: rgba(249, 250, 251, 0.1);
+}
+
+/* Apply theme variables */
+body {
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--heading-font-family);
+}
+
+/* Navbar theming */
+.navbar {
+  background-color: var(--navbar-bg-color) !important;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+  color: var(--navbar-text-color) !important;
+}
+
+.navbar-nav .nav-link:hover {
+  opacity: 0.8;
+}
+
+/* Button theming */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  opacity: 0.9;
+}
+
+/* Card theming */
+.card {
+  border-radius: var(--border-radius);
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+/* Container theming */
+.container {
+  max-width: var(--container-max-width);
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+  border-radius: var(--border-radius);
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+/* Text color utilities */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Link colors */
+a {
+  color: var(--primary-color);
+}
+
+a:hover {
+  color: var(--primary-color);
+  opacity: 0.8;
+}
+
+/* Badge theming */
+.badge {
+  border-radius: calc(var(--border-radius) / 2);
+}
+
+/* Modal theming */
+.modal-content {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+}
+
+.modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+  border-top-color: var(--border-color);
+}
+
+/* Table theming */
+.table {
+  color: var(--text-color);
+}
+
+.table-bordered {
+  border-color: var(--border-color);
+}
+
+.table-bordered th,
+.table-bordered td {
+  border-color: var(--border-color);
+}
+
+/* List group theming */
+.list-group-item {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Dropdown theming */
+.dropdown-menu {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+}
+
+.dropdown-item {
+  color: var(--text-color);
+}
+
+.dropdown-item:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Alert theming */
+.alert {
+  border-radius: var(--border-radius);
+}

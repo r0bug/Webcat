@@ -1,11 +1,13 @@
 import React from 'react';
 import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiLogOut, FiMessageSquare, FiPackage } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiMessageSquare, FiPackage, FiMoon, FiSun } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Navigation: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, isDarkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -17,7 +19,7 @@ const Navigation: React.FC = () => {
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
       <Container>
         <Navbar.Brand as={Link} to="/">
-          WebCat
+          {theme.site_title || 'WebCat'}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -34,6 +36,11 @@ const Navigation: React.FC = () => {
           </Nav>
           
           <Nav>
+            {theme.enable_dark_mode && (
+              <Nav.Link onClick={toggleDarkMode} className="me-3">
+                {isDarkMode ? <FiSun /> : <FiMoon />}
+              </Nav.Link>
+            )}
             {user ? (
               <>
                 <Nav.Link as={Link} to="/messages" className="position-relative">
@@ -63,6 +70,11 @@ const Navigation: React.FC = () => {
                       <NavDropdown.Item as={Link} to="/admin">
                         Admin Panel
                       </NavDropdown.Item>
+                      {user.userType === 'Admin' && (
+                        <NavDropdown.Item as={Link} to="/admin/theme">
+                          Theme Editor
+                        </NavDropdown.Item>
+                      )}
                     </>
                   )}
                   <NavDropdown.Divider />

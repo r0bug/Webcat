@@ -1,13 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/common/Layout';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ItemsPage from './pages/ItemsPage';
 import ForumPage from './pages/ForumPage';
 import ForumPostPage from './pages/ForumPostPage';
 import CalendarPage from './pages/CalendarPage';
+import ThemeEditor from './components/admin/ThemeEditor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -24,23 +27,30 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<ItemsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/items" element={<ItemsPage />} />
-              <Route path="/items/:slug" element={<div>Item Detail - Coming Soon</div>} />
-              <Route path="/messages" element={<div>Messages - Coming Soon</div>} />
-              <Route path="/forum" element={<ForumPage />} />
-              <Route path="/forum/post/:id" element={<ForumPostPage />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/profile" element={<div>Profile - Coming Soon</div>} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Layout>
-        </Router>
+        <ThemeProvider>
+          <Router>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<ItemsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/items" element={<ItemsPage />} />
+                <Route path="/items/:slug" element={<div>Item Detail - Coming Soon</div>} />
+                <Route path="/messages" element={<div>Messages - Coming Soon</div>} />
+                <Route path="/forum" element={<ForumPage />} />
+                <Route path="/forum/post/:id" element={<ForumPostPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/profile" element={<div>Profile - Coming Soon</div>} />
+                <Route path="/admin/theme" element={
+                  <ProtectedRoute allowedRoles={['Admin']}>
+                    <ThemeEditor />
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+          </Router>
+        </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

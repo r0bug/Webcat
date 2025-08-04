@@ -7,6 +7,7 @@ import ItemTag from './ItemTag';
 import Message from './Message';
 import ForumPost from './ForumPost';
 import Event from './Event';
+import { ThemeSetting } from './ThemeSetting';
 
 // User associations
 User.hasMany(Item, {
@@ -137,6 +138,15 @@ Event.belongsTo(User, {
   as: 'createdBy'
 });
 
+// Initialize ThemeSetting model
+ThemeSetting.initModel(sequelize);
+
+// ThemeSetting associations
+ThemeSetting.belongsTo(User, {
+  foreignKey: 'updated_by',
+  as: 'updater'
+});
+
 export {
   sequelize,
   User,
@@ -146,5 +156,6 @@ export {
   ItemTag,
   Message,
   ForumPost,
-  Event
+  Event,
+  ThemeSetting
 };
