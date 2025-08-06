@@ -5,6 +5,7 @@ import * as imageController from '../controllers/imageController';
 import { authenticate, authorize } from '../middleware/auth';
 import { handleValidationErrors } from '../utils/validation';
 import { upload, handleUploadError } from '../config/multer';
+import { uploadCsv, handleCsvUploadError } from '../config/multerCsv';
 import {
   validateCreateItem,
   validateUpdateItem,
@@ -36,6 +37,14 @@ router.delete('/:id', authenticate, validateItemId, handleValidationErrors, item
 
 // User's own items
 router.get('/my-items', authenticate, validateGetItems, handleValidationErrors, itemController.getMyItems);
+
+// Batch upload
+router.post('/batch-upload', 
+  authenticate, 
+  uploadCsv.single('csv'),
+  handleCsvUploadError,
+  itemController.batchUploadItems
+);
 
 // Tag management on items
 router.post('/:id/tags', authenticate, validateAddTags, handleValidationErrors, tagController.addTagsToItem);

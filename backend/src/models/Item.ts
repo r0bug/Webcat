@@ -116,11 +116,6 @@ Item.init(
         if (!item.urlSlug) {
           item.urlSlug = Item.generateSlug(item.title);
         }
-      },
-      afterCreate: (item) => {
-        // Update slug with ID after creation
-        item.urlSlug = Item.generateSlug(item.title, item.itemId);
-        item.save();
       }
     }
   }

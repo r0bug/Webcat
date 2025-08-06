@@ -15,6 +15,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import UserManagement from './pages/UserManagement';
 import ThemeEditor from './components/admin/ThemeEditor';
 import MyItemsPage from './pages/MyItemsPage';
+import ItemImagesPage from './pages/ItemImagesPage';
+import ItemDetailPage from './pages/ItemDetailPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -44,7 +46,12 @@ function App() {
                     <MyItemsPage />
                   </ProtectedRoute>
                 } />
-                <Route path="/items/:slug" element={<div>Item Detail - Coming Soon</div>} />
+                <Route path="/items/:slug" element={<ItemDetailPage />} />
+                <Route path="/items/:slug/images" element={
+                  <ProtectedRoute>
+                    <ItemImagesPage />
+                  </ProtectedRoute>
+                } />
                 <Route path="/messages" element={<div>Messages - Coming Soon</div>} />
                 <Route path="/forum" element={<ForumPage />} />
                 <Route path="/forum/post/:id" element={<ForumPostPage />} />

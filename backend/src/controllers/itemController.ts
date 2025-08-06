@@ -5,6 +5,8 @@ import { CustomError } from '../middleware/errorHandler';
 import * as itemService from '../services/itemService';
 import { USER_TYPES } from '../config/constants';
 import sequelize from '../config/database';
+import { parse } from 'csv-parse/sync';
+import fs from 'fs/promises';
 
 export const createItem = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   const transaction = await sequelize.transaction();
@@ -18,6 +20,9 @@ export const createItem = async (req: AuthRequest, res: Response, next: NextFunc
 
     const { title, description, price, location, contactInfo, status } = req.body;
 
+    // Create item with temporary slug
+    const tempSlug = Item.generateSlug(title);
+
     // Create item
     const item = await Item.create({
       title,
@@ -26,8 +31,13 @@ export const createItem = async (req: AuthRequest, res: Response, next: NextFunc
       vendorId: req.user.userId,
       location,
       contactInfo,
-      status: status || 'Available'
+      status: status || 'Available',
+      urlSlug: tempSlug
     }, { transaction });
+
+    // Update slug with ID
+    const finalSlug = Item.generateSlug(title, item.itemId);
+    await item.update({ urlSlug: finalSlug }, { transaction });
 
     await transaction.commit();
 
@@ -228,6 +238,99 @@ export const getMyItems = async (req: AuthRequest, res: Response, next: NextFunc
 
     res.json(result);
   } catch (error) {
+    next(error);
+  }
+};
+
+export const batchUploadItems = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  const transaction = await sequelize.transaction();
+  
+  try {
+    if (!req.user) {
+      const error: CustomError = new Error('Unauthorized');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (!req.file) {
+      const error: CustomError = new Error('No CSV file uploaded');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Read CSV file
+    const csvContent = await fs.readFile(req.file.path, 'utf-8');
+    
+    // Parse CSV
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true
+    });
+
+    const results = {
+      successful: 0,
+      failed: 0,
+      errors: [] as string[]
+    };
+
+    // Process each row
+    for (const [index, record] of records.entries()) {
+      try {
+        const { name, description, price } = record as any;
+        
+        if (!name || name.trim() === '') {
+          results.failed++;
+          results.errors.push(`Row ${index + 2}: Missing name`);
+          continue;
+        }
+
+        // Generate slug
+        const tempSlug = Item.generateSlug(name);
+
+        // Create item
+        const item = await Item.create({
+          title: name.trim(),
+          description: description?.trim() || undefined,
+          price: price ? parseFloat(price) : undefined,
+          vendorId: req.user.userId,
+          status: 'Available',
+          urlSlug: tempSlug
+        }, { transaction });
+
+        // Update slug with ID
+        const finalSlug = Item.generateSlug(name, item.itemId);
+        await item.update({ urlSlug: finalSlug }, { transaction });
+
+        results.successful++;
+      } catch (error: any) {
+        results.failed++;
+        results.errors.push(`Row ${index + 2}: ${error.message}`);
+      }
+    }
+
+    await transaction.commit();
+
+    // Clean up uploaded file
+    await fs.unlink(req.file.path).catch(() => {});
+
+    res.json({
+      message: 'Batch upload completed',
+      results: {
+        totalRows: records.length,
+        successful: results.successful,
+        failed: results.failed,
+        errors: results.errors
+      }
+    });
+  } catch (error) {
+    await transaction.rollback();
+    
+    // Clean up uploaded file on error
+    if (req.file) {
+      await fs.unlink(req.file.path).catch(() => {});
+    }
+    
     next(error);
   }
 };

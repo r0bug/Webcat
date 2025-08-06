@@ -14,6 +14,9 @@ dotenv.config();
 
 const app: Application = express();
 
+// Trust proxy for nginx
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 app.use(cors({

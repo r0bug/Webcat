@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Button, Table, Badge, Modal, Form, Alert } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
+import { Container, Row, Col, Button, Table, Badge, Modal, Form, Alert, ProgressBar } from 'react-bootstrap';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FiPlus, FiEdit, FiTrash, FiImage } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash, FiImage, FiUpload, FiDownload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,6 +15,7 @@ interface ItemFormData {
   contactInfo: string;
   status: ItemStatus;
   tags: number[];
+  images?: File[];
 }
 
 const MyItemsPage: React.FC = () => {
@@ -30,15 +31,23 @@ const MyItemsPage: React.FC = () => {
     location: '',
     contactInfo: '',
     status: 'Available',
-    tags: []
+    tags: [],
+    images: []
   });
   const [error, setError] = useState('');
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [batchUploadResults, setBatchUploadResults] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user's items
-  const { data: items, isLoading } = useQuery({
+  const { data: response, isLoading } = useQuery({
     queryKey: ['myItems'],
-    queryFn: () => api.get<Item[]>('/items/my-items')
+    queryFn: () => api.get<{ data: Item[], total: number }>('/items/my-items')
   });
+  
+  const items = response?.data;
 
   // Fetch available tags
   const { data: tags } = useQuery({
@@ -48,10 +57,33 @@ const MyItemsPage: React.FC = () => {
 
   // Create item mutation
   const createMutation = useMutation({
-    mutationFn: (data: ItemFormData) => api.post('/items', {
-      ...data,
-      price: data.price ? parseFloat(data.price) : null
-    }),
+    mutationFn: async (data: ItemFormData) => {
+      // First create the item
+      const itemData = {
+        title: data.title,
+        description: data.description,
+        price: data.price ? parseFloat(data.price) : null,
+        location: data.location,
+        contactInfo: data.contactInfo,
+        status: data.status,
+        tags: data.tags
+      };
+      
+      const response = await api.post<{ message: string; item: Item }>('/items', itemData);
+      const createdItem = response.item;
+      
+      // Then upload images if provided
+      if (data.images && data.images.length > 0) {
+        const formData = new FormData();
+        data.images.forEach((image) => {
+          formData.append('images', image);
+        });
+        
+        await api.upload(`/items/${createdItem.itemId}/images`, formData);
+      }
+      
+      return createdItem;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myItems'] });
       handleCloseModal();
@@ -85,6 +117,31 @@ const MyItemsPage: React.FC = () => {
     }
   });
 
+  // Batch upload mutation
+  const batchUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('csv', file);
+      
+      setIsUploading(true);
+      const response = await api.upload('/items/batch-upload', formData);
+      return response;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['myItems'] });
+      setBatchUploadResults(data.results);
+      setIsUploading(false);
+      setCsvFile(null);
+      if (csvInputRef.current) {
+        csvInputRef.current.value = '';
+      }
+    },
+    onError: (error: any) => {
+      setError(error.response?.data?.error || 'Failed to upload CSV');
+      setIsUploading(false);
+    }
+  });
+
   const handleOpenModal = (item?: Item) => {
     if (item) {
       setEditingItem(item);
@@ -95,7 +152,8 @@ const MyItemsPage: React.FC = () => {
         location: item.location || '',
         contactInfo: item.contactInfo || '',
         status: item.status,
-        tags: item.tags?.map(t => t.tagId) || []
+        tags: item.tags?.map(t => t.tagId) || [],
+        images: []
       });
     } else {
       setEditingItem(null);
@@ -106,7 +164,8 @@ const MyItemsPage: React.FC = () => {
         location: '',
         contactInfo: user?.contactInfo || '',
         status: 'Available',
-        tags: []
+        tags: [],
+        images: []
       });
     }
     setError('');
@@ -148,16 +207,50 @@ const MyItemsPage: React.FC = () => {
     }
   };
 
+  const handleCsvFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCsvFile(file);
+      setError('');
+      setBatchUploadResults(null);
+    }
+  };
+
+  const handleBatchUpload = () => {
+    if (csvFile) {
+      batchUploadMutation.mutate(csvFile);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const csvContent = 'name,description,price\n"Example Item","This is a description",19.99\n"Another Item","Another description",29.99';
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'items_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <Container>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>My Items</h1>
-        <Button variant="primary" onClick={() => handleOpenModal()}>
-          <FiPlus className="me-2" />
-          Add New Item
-        </Button>
+        <div className="d-flex gap-2">
+          <Button variant="secondary" onClick={() => setShowBatchModal(true)}>
+            <FiUpload className="me-2" />
+            Batch Upload
+          </Button>
+          <Button variant="primary" onClick={() => handleOpenModal()}>
+            <FiPlus className="me-2" />
+            Add New Item
+          </Button>
+        </div>
       </div>
 
       {items && items.length > 0 ? (
@@ -324,6 +417,49 @@ const MyItemsPage: React.FC = () => {
               </Form.Group>
             )}
 
+            {!editingItem && (
+              <Form.Group className="mb-3">
+                <Form.Label>Add Images (Optional)</Form.Label>
+                <div className="d-flex flex-column gap-2">
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length + (formData.images?.length || 0) > 6) {
+                        setError('Maximum 6 images allowed per item');
+                        return;
+                      }
+                      setFormData({
+                        ...formData,
+                        images: [...(formData.images || []), ...files]
+                      });
+                    }}
+                  />
+                  <small className="text-muted">
+                    Take photos directly from your mobile camera or select from gallery. Max 6 images.
+                  </small>
+                  {formData.images && formData.images.length > 0 && (
+                    <div className="mt-2">
+                      <small className="text-success">
+                        {formData.images.length} image(s) selected
+                      </small>
+                      <Button
+                        size="sm"
+                        variant="link"
+                        className="ms-2 p-0"
+                        onClick={() => setFormData({ ...formData, images: [] })}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </Form.Group>
+            )}
+
             {editingItem && (
               <Alert variant="info">
                 After saving, you can manage images by clicking the image button in the actions column.
@@ -343,6 +479,106 @@ const MyItemsPage: React.FC = () => {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Batch Upload Modal */}
+      <Modal show={showBatchModal} onHide={() => {
+        setShowBatchModal(false);
+        setBatchUploadResults(null);
+        setCsvFile(null);
+        setError('');
+      }} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Batch Upload Items</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {error && <Alert variant="danger">{error}</Alert>}
+          
+          <div className="mb-4">
+            <h5>Upload CSV File</h5>
+            <p className="text-muted">
+              Upload a CSV file with columns: name, description, price
+            </p>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Select CSV File</Form.Label>
+              <Form.Control
+                ref={csvInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleCsvFileSelect}
+                disabled={isUploading}
+              />
+            </Form.Group>
+            
+            {csvFile && (
+              <Alert variant="info">
+                Selected file: {csvFile.name} ({(csvFile.size / 1024).toFixed(2)} KB)
+              </Alert>
+            )}
+            
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-primary"
+                onClick={handleDownloadTemplate}
+              >
+                <FiDownload className="me-2" />
+                Download Template
+              </Button>
+              
+              <Button
+                variant="primary"
+                onClick={handleBatchUpload}
+                disabled={!csvFile || isUploading}
+              >
+                <FiUpload className="me-2" />
+                {isUploading ? 'Uploading...' : 'Upload Items'}
+              </Button>
+            </div>
+          </div>
+          
+          {isUploading && (
+            <ProgressBar animated now={100} label="Processing..." />
+          )}
+          
+          {batchUploadResults && (
+            <div className="mt-4">
+              <h5>Upload Results</h5>
+              <Alert variant={batchUploadResults.failed === 0 ? 'success' : 'warning'}>
+                <p className="mb-1">
+                  <strong>Total Rows:</strong> {batchUploadResults.totalRows}
+                </p>
+                <p className="mb-1">
+                  <strong>Successful:</strong> {batchUploadResults.successful}
+                </p>
+                <p className="mb-0">
+                  <strong>Failed:</strong> {batchUploadResults.failed}
+                </p>
+              </Alert>
+              
+              {batchUploadResults.errors && batchUploadResults.errors.length > 0 && (
+                <div>
+                  <h6>Errors:</h6>
+                  <ul className="text-danger">
+                    {batchUploadResults.errors.map((error: string, index: number) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => {
+            setShowBatchModal(false);
+            setBatchUploadResults(null);
+            setCsvFile(null);
+            setError('');
+          }}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );
