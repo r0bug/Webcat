@@ -1,0 +1,179 @@
+generator kysely {
+  provider = "prisma-kysely"
+  output       = "../../src/db/main-db"
+  fileName     = "types.ts"
+  enumFileName = "enums.ts"
+  readOnlyIds  = true
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "https://example.com/non-existant-database/required-but-unused-variable"
+}
+
+// Enums
+enum UserType {
+  Admin
+  Staff
+  Vendor
+}
+
+enum ItemStatus {
+  Available
+  Pending
+  Sold
+  Removed
+}
+
+// Users table
+model User {
+  userId       Int      @id @default(autoincrement()) @map("user_id")
+  name         String   @map("name")
+  email        String   @unique @map("email")
+  passwordHash String   @map("password_hash")
+  contactInfo  String?  @map("contact_info")
+  phoneNumber  String?  @map("phone_number")
+  yfVendorId   String?  @map("yf_vendor_id")
+  userType     UserType @map("user_type")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  items            Item[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  forumPosts       ForumPost[]
+  events           Event[]
+  itemTags         ItemTag[]
+
+  @@map("users")
+}
+
+// Items table
+model Item {
+  itemId      Int        @id @default(autoincrement()) @map("item_id")
+  title       String     @map("title")
+  description String?    @map("description")
+  price       Float?     @map("price")
+  vendorId    Int        @map("vendor_id")
+  location    String?    @map("location")
+  contactInfo String?    @map("contact_info")
+  status      ItemStatus @default(Available) @map("status")
+  dateAdded   DateTime   @default(now()) @map("date_added")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  urlSlug     String?    @unique @map("url_slug")
+  viewCount   Int        @default(0) @map("view_count")
+
+  // Relations
+  vendor     User         @relation(fields: [vendorId], references: [userId])
+  images     ItemImage[]
+  tags       ItemTag[]
+  messages   Message[]
+  forumPosts ForumPost[]
+
+  @@map("items")
+}
+
+// Item Images table
+model ItemImage {
+  imageId    Int      @id @default(autoincrement()) @map("image_id")
+  itemId     Int      @map("item_id")
+  imageUrl   String   @map("image_url")
+  imageOrder Int      @default(1) @map("image_order")
+  altText    String?  @map("alt_text")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  // Relations
+  item Item @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+
+  @@map("item_images")
+}
+
+// Tags table
+model Tag {
+  tagId     Int      @id @default(autoincrement()) @map("tag_id")
+  tagName   String   @unique @map("tag_name")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  items ItemTag[]
+
+  @@map("tags")
+}
+
+// Item Tags junction table
+model ItemTag {
+  itemId       Int      @map("item_id")
+  tagId        Int      @map("tag_id")
+  addedByUserId Int?    @map("added_by_user_id")
+  addedAt      DateTime @default(now()) @map("added_at")
+
+  // Relations
+  item    Item  @relation(fields: [itemId], references: [itemId], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [tagId], onDelete: Cascade)
+  addedBy User? @relation(fields: [addedByUserId], references: [userId])
+
+  @@id([itemId, tagId])
+  @@map("item_tags")
+}
+
+// Messages table
+model Message {
+  messageId   Int      @id @default(autoincrement()) @map("message_id")
+  itemId      Int?     @map("item_id")
+  senderId    Int      @map("sender_id")
+  recipientId Int      @map("recipient_id")
+  subject     String?  @map("subject")
+  messageText String   @map("message_text")
+  isRead      Boolean  @default(false) @map("is_read")
+  sentAt      DateTime @default(now()) @map("sent_at")
+
+  // Relations
+  item      Item? @relation(fields: [itemId], references: [itemId])
+  sender    User  @relation("SentMessages", fields: [senderId], references: [userId])
+  recipient User  @relation("ReceivedMessages", fields: [recipientId], references: [userId])
+
+  @@map("messages")
+}
+
+// Forum Posts table
+model ForumPost {
+  postId       Int      @id @default(autoincrement()) @map("post_id")
+  itemId       Int?     @map("item_id")
+  userId       Int      @map("user_id")
+  parentPostId Int?     @map("parent_post_id")
+  title        String?  @map("title")
+  content      String   @map("content")
+  isPinned     Boolean  @default(false) @map("is_pinned")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  item       Item?       @relation(fields: [itemId], references: [itemId])
+  user       User        @relation(fields: [userId], references: [userId])
+  parentPost ForumPost?  @relation("PostReplies", fields: [parentPostId], references: [postId])
+  replies    ForumPost[] @relation("PostReplies")
+
+  @@map("forum_posts")
+}
+
+// Events table
+model Event {
+  eventId         Int      @id @default(autoincrement()) @map("event_id")
+  title           String   @map("title")
+  description     String?  @map("description")
+  eventDate       DateTime @map("event_date")
+  startTime       String?  @map("start_time")
+  endTime         String?  @map("end_time")
+  location        String?  @map("location")
+  createdByUserId Int      @map("created_by_user_id")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  createdBy User @relation(fields: [createdByUserId], references: [userId])
+
+  @@map("events")
+}
+

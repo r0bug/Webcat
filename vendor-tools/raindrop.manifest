@@ -1,0 +1,69 @@
+application "vendor-tools" {
+  # Core API Service - Public endpoint for all REST APIs
+  service "api-service" {
+    visibility = "public"
+  }
+
+  # Search Service - Handles semantic search and embeddings
+  service "search-service" {}
+
+  # Primary SQL Database for relational data
+  sql_database "main-db" {}
+
+  # Vector database for semantic search
+  vector_index "item-embeddings" {
+    dimensions = 768
+    metric = "cosine"
+  }
+
+  # Object storage for images
+  bucket "item-images" {}
+
+  # Key-value store for sessions and caching
+  kv_store "session-cache" {}
+
+  # Message queue for notifications
+  queue "notification-queue" {}
+
+  # Image processing observer
+  observer "image-processor" {
+    source {
+      bucket = "item-images"
+      rule {
+        actions = ["PutObject", "CompleteMultipartUpload", "CopyObject"]
+      }
+    }
+  }
+
+  # Notification observer
+  observer "notification-handler" {
+    source {
+      queue = "notification-queue"
+    }
+  }
+
+  # Secrets for the application
+  env "JWT_SECRET" {
+    secret = true
+  }
+
+  env "DATABASE_URL" {
+    secret = true
+  }
+
+  env "SMTP_HOST" {
+    secret = true
+  }
+
+  env "SMTP_USER" {
+    secret = true
+  }
+
+  env "SMTP_PASS" {
+    secret = true
+  }
+
+  env "SMS_API_KEY" {
+    secret = true
+  }
+}
