@@ -7,6 +7,7 @@ interface ItemImageAttributes {
   imageUrl: string;
   imageOrder: number;
   altText?: string;
+  variants?: any;
   uploadedAt?: Date;
 }
 
@@ -18,6 +19,7 @@ class ItemImage extends Model<ItemImageAttributes, ItemImageCreationAttributes> 
   public imageUrl!: string;
   public imageOrder!: number;
   public altText?: string;
+  public variants?: any;
   public readonly uploadedAt!: Date;
 }
 
@@ -58,6 +60,18 @@ ItemImage.init(
       type: DataTypes.STRING(200),
       allowNull: true,
       field: 'alt_text'
+    },
+    variants: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'variants',
+      get() {
+        const rawValue = this.getDataValue('variants');
+        return rawValue ? JSON.parse(rawValue) : {};
+      },
+      set(value: object) {
+        this.setDataValue('variants', JSON.stringify(value));
+      }
     }
   },
   {

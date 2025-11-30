@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import type { Item } from '../types';
+import ResponsiveImage from '../components/common/ResponsiveImage';
 
 const ItemDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -67,12 +68,17 @@ const ItemDetailPage: React.FC = () => {
             <Carousel className="mb-4">
               {item.images.map((image, index) => (
                 <Carousel.Item key={image.imageId}>
-                  <img
-                    className="d-block w-100"
-                    src={image.imageUrl}
-                    alt={image.altText || `${item.title} - Image ${index + 1}`}
-                    style={{ maxHeight: '500px', objectFit: 'contain', backgroundColor: '#f8f9fa' }}
-                  />
+                  <div style={{ maxHeight: '500px', backgroundColor: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ResponsiveImage
+                      src={image.imageUrl}
+                      variants={image.variants}
+                      alt={image.altText || `${item.title} - Image ${index + 1}`}
+                      className="d-block w-100"
+                      style={{ maxHeight: '500px', objectFit: 'contain' }}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      sizes="(max-width: 992px) 100vw, 50vw"
+                    />
+                  </div>
                 </Carousel.Item>
               ))}
             </Carousel>

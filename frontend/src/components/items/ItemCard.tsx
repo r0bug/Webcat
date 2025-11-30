@@ -5,6 +5,7 @@ import { FiEye, FiUser, FiMapPin, FiTag } from 'react-icons/fi';
 import type { Item } from '../../types';
 import { format } from 'date-fns';
 import ShareButton from '../common/ShareButton';
+import ResponsiveImage from '../common/ResponsiveImage';
 
 interface ItemCardProps {
   item: Item;
@@ -19,22 +20,23 @@ const ItemCard: React.FC<ItemCardProps> = ({ item }) => {
   };
 
   const defaultImage = '/api/placeholder/300/200';
-  const imageUrl = item.images && item.images.length > 0 
-    ? `${import.meta.env.VITE_API_URL?.replace('/api', '')}${item.images[0].imageUrl}`
+  const firstImage = item.images && item.images.length > 0 ? item.images[0] : null;
+  const imageUrl = firstImage 
+    ? `${import.meta.env.VITE_API_URL?.replace('/api', '')}${firstImage.imageUrl}`
     : defaultImage;
 
   return (
     <Card className="h-100 shadow-sm">
       <Link to={`/items/${item.urlSlug}`} className="text-decoration-none">
-        <div style={{ height: '200px', overflow: 'hidden' }}>
-          <Card.Img 
-            variant="top" 
+        <div style={{ height: '200px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
+          <ResponsiveImage
             src={imageUrl}
+            variants={firstImage?.variants}
             alt={item.title}
-            style={{ height: '100%', objectFit: 'cover' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = defaultImage;
-            }}
+            className="w-100"
+            style={{ height: '200px', objectFit: 'cover' }}
+            loading="lazy"
+            sizes="(max-width: 576px) 100vw, (max-width: 768px) 50vw, (max-width: 992px) 33vw, 25vw"
           />
         </div>
       </Link>

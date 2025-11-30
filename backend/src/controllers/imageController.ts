@@ -1,11 +1,11 @@
 import { Response, NextFunction } from 'express';
 import fs from 'fs/promises';
-import path from 'path';
 import { Item, ItemImage } from '../models';
 import { AuthRequest } from '../types';
 import { CustomError } from '../middleware/errorHandler';
 import { USER_TYPES, MAX_IMAGES_PER_ITEM } from '../config/constants';
 import * as itemService from '../services/itemService';
+import { imageProcessingService } from '../services/imageProcessingService';
 import sequelize from '../config/database';
 
 export const uploadImages = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -68,20 +68,29 @@ export const uploadImages = async (req: AuthRequest, res: Response, next: NextFu
       throw error;
     }
 
-    // Create image records
-    const imagePromises = files.map((file, index) => {
-      const imageUrl = `/uploads/${file.filename}`;
-      const imageOrder = currentImageCount + index + 1;
+    // Process images and create records
+    const newImages = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const imageOrder = currentImageCount + i + 1;
       
-      return ItemImage.create({
+      // Process image with Sharp
+      const processedImage = await imageProcessingService.processImage(
+        file.path,
+        itemId
+      );
+      
+      // Create image record with variants
+      const imageRecord = await ItemImage.create({
         itemId,
-        imageUrl,
+        imageUrl: processedImage.original,
         imageOrder,
-        altText: req.body.altTexts?.[index] || `${item.title} - Image ${imageOrder}`
+        altText: req.body.altTexts?.[i] || `${item.title} - Image ${imageOrder}`,
+        variants: JSON.stringify(processedImage.variants)
       }, { transaction });
-    });
-
-    const newImages = await Promise.all(imagePromises);
+      
+      newImages.push(imageRecord);
+    }
 
     await transaction.commit();
 
@@ -148,9 +157,8 @@ export const deleteImage = async (req: AuthRequest, res: Response, next: NextFun
       throw error;
     }
 
-    // Delete file from filesystem
-    const filePath = path.join(__dirname, '../..', image.imageUrl);
-    await fs.unlink(filePath).catch(() => {});
+    // Delete all image variants from filesystem
+    await imageProcessingService.deleteImageVariants(image.imageUrl);
 
     // Delete image record
     await image.destroy({ transaction });
