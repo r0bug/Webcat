@@ -13,7 +13,7 @@ import CalendarPage from './pages/CalendarPage';
 import Documentation from './pages/Documentation';
 import AdminDashboard from './pages/AdminDashboard';
 import UserManagement from './pages/UserManagement';
-import ThemeEditor from './components/admin/ThemeEditor';
+import ImprovedThemeEditor from './components/admin/ImprovedThemeEditor';
 import MyItemsPage from './pages/MyItemsPage';
 import ItemImagesPage from './pages/ItemImagesPage';
 import ItemDetailPage from './pages/ItemDetailPage';
@@ -34,7 +34,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider>
-          <Router>
+          <Router basename="/webcat">
             <Layout>
               <Routes>
                 <Route path="/" element={<ItemsPage />} />
@@ -72,7 +72,7 @@ function App() {
                 } />
                 <Route path="/admin/theme" element={
                   <ProtectedRoute allowedRoles={['Admin']}>
-                    <ThemeEditor />
+                    <ImprovedThemeEditor />
                   </ProtectedRoute>
                 } />
                 

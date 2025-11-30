@@ -109,3 +109,4 @@ package-server.log
 
 # Download directory
 download/
+.vercel

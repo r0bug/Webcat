@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User, AuthResponse } from '../types';
 import api from '../services/api';
+import storage from '../utils/storage';
 
 interface AuthContextType {
   user: User | null;
@@ -47,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = storage.getItem('token');
       if (token) {
         const userData = await api.get<User>('/auth/me');
         setUser(userData);
@@ -64,8 +65,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const response = await api.post<AuthResponse>('/auth/login', { email, password });
     const { token, refreshToken, user } = response;
     
-    localStorage.setItem('token', token);
-    localStorage.setItem('refreshToken', refreshToken);
+    storage.setItem('token', token);
+    storage.setItem('refreshToken', refreshToken);
     setUser(user);
   };
 
@@ -73,14 +74,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const response = await api.post<AuthResponse>('/auth/register', data);
     const { token, refreshToken, user } = response;
     
-    localStorage.setItem('token', token);
-    localStorage.setItem('refreshToken', refreshToken);
+    storage.setItem('token', token);
+    storage.setItem('refreshToken', refreshToken);
     setUser(user);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
+    storage.removeItem('token');
+    storage.removeItem('refreshToken');
     setUser(null);
   };
 

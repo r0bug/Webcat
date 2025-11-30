@@ -1,16 +1,17 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+import storage from '../utils/storage';
 
 // Dynamically determine API URL based on current host
 const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   
-  // If we have an environment URL and we're on localhost, use it
-  if (envUrl && window.location.hostname === 'localhost') {
+  // If we have an environment URL, use it
+  if (envUrl) {
     return envUrl;
   }
   
-  // Otherwise, use the same host as the frontend
+  // Otherwise, use the same host as the frontend with default port
   const protocol = window.location.protocol;
   const hostname = window.location.hostname;
   return `${protocol}//${hostname}:3001/api`;
@@ -38,7 +39,7 @@ class ApiService {
     // Request interceptor
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        const token = storage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -67,11 +68,11 @@ class ApiService {
           this.refreshingToken = true;
 
           try {
-            const refreshToken = localStorage.getItem('refreshToken');
+            const refreshToken = storage.getItem('refreshToken');
             const response = await this.post('/auth/refresh', { refreshToken });
             const { token } = response.data;
 
-            localStorage.setItem('token', token);
+            storage.setItem('token', token);
             this.refreshingToken = false;
 
             this.refreshSubscribers.forEach((callback) => callback(token));
@@ -80,9 +81,9 @@ class ApiService {
             return this.api(originalRequest);
           } catch (refreshError) {
             this.refreshingToken = false;
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-            window.location.href = '/login';
+            storage.removeItem('token');
+            storage.removeItem('refreshToken');
+            window.location.href = '/webcat/login';
             return Promise.reject(refreshError);
           }
         }

@@ -7,6 +7,7 @@ import forumRoutes from './forumRoutes';
 import eventRoutes from './eventRoutes';
 import themeRoutes from './theme';
 import userRoutes from './users';
+import contentRoutes from './content';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/forum', forumRoutes);
 router.use('/events', eventRoutes);
 router.use('/theme', themeRoutes);
 router.use('/users', userRoutes);
+router.use('/content', contentRoutes);
 
 // Health check route
 router.get('/health', (req, res) => {

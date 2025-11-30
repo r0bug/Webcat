@@ -10,8 +10,9 @@ import { body } from 'express-validator';
 
 const router = Router();
 
-// Public route - get theme settings for frontend
+// Public routes - get theme settings for frontend
 router.get('/public', getPublicThemeSettings);
+router.get('/content', getPublicThemeSettings); // Content settings use same endpoint
 
 // Admin routes
 router.get('/', authenticate, authorize(['Admin']), getThemeSettings);

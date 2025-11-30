@@ -1,0 +1,123 @@
+{
+  "siteName": "WebCat - Yakima Finds Inventory System",
+  "siteDescription": "Manage your thrift store inventory with ease",
+  "pages": {
+    "home": {
+      "title": "Welcome to WebCat",
+      "heroText": "Your Complete Inventory Management Solution",
+      "heroSubtext": "Track items, manage sales, and grow your business",
+      "features": [
+        {
+          "title": "Easy Item Management",
+          "description": "Add, edit, and organize your inventory items quickly"
+        },
+        {
+          "title": "Image Upload",
+          "description": "Upload multiple images per item, including direct camera capture on mobile"
+        },
+        {
+          "title": "Batch Import",
+          "description": "Import multiple items at once using CSV files"
+        }
+      ]
+    },
+    "items": {
+      "title": "Browse Items",
+      "emptyMessage": "No items found. Start by adding your first item!",
+      "searchPlaceholder": "Search items...",
+      "filters": {
+        "status": "Filter by Status",
+        "price": "Filter by Price",
+        "sortBy": "Sort By"
+      }
+    },
+    "myItems": {
+      "title": "My Items",
+      "addButton": "Add New Item",
+      "batchUploadButton": "Batch Upload",
+      "emptyMessage": "You haven't added any items yet. Click 'Add New Item' to get started!",
+      "batchUpload": {
+        "title": "Batch Upload Items",
+        "description": "Upload a CSV file with columns: name, description, price",
+        "templateButton": "Download Template",
+        "uploadButton": "Upload Items",
+        "selectFile": "Select CSV File"
+      }
+    },
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Access your WebCat account",
+      "usernameLabel": "Username",
+      "passwordLabel": "Password",
+      "submitButton": "Sign In",
+      "registerLink": "Don't have an account? Sign up",
+      "forgotPassword": "Forgot your password?"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join WebCat to start managing your inventory",
+      "fields": {
+        "username": "Choose a username",
+        "email": "Email address",
+        "password": "Create a password",
+        "confirmPassword": "Confirm password",
+        "name": "Your full name"
+      },
+      "submitButton": "Create Account",
+      "loginLink": "Already have an account? Sign in"
+    }
+  },
+  "navigation": {
+    "items": "Items",
+    "myItems": "My Items",
+    "forum": "Forum",
+    "calendar": "Calendar",
+    "messages": "Messages",
+    "profile": "Profile",
+    "admin": "Admin",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "actions": "Actions",
+    "status": {
+      "available": "Available",
+      "pending": "Pending",
+      "sold": "Sold",
+      "removed": "Removed"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Yakima Finds. All rights reserved.",
+    "links": [
+      {"text": "Privacy Policy", "url": "/privacy"},
+      {"text": "Terms of Service", "url": "/terms"},
+      {"text": "Contact Us", "url": "/contact"}
+    ]
+  },
+  "emails": {
+    "welcome": {
+      "subject": "Welcome to WebCat!",
+      "body": "Thank you for joining WebCat. You can now start managing your inventory."
+    },
+    "itemSold": {
+      "subject": "Item Sold: {{itemName}}",
+      "body": "Congratulations! Your item '{{itemName}}' has been sold for ${{price}}."
+    }
+  }
+}
